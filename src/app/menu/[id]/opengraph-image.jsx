@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getDish } from "@/data/menuData";
+import { formatETB } from "@/lib/format";
+import { getSiteUrl } from "@/lib/siteUrl";
 import fs from "fs/promises";
 import path from "path";
 
@@ -39,20 +41,32 @@ export default async function Image({ params }) {
     );
   }
 
-  // Read local dish image from public/ as base64 data URL
+  // Read local dish image from public/ or fallback to site URL
   let imageSrc = null;
+  const cleanPath = item.image ? item.image.replace(/^\//, "") : "";
   try {
-    const cleanPath = item.image.replace(/^\//, "");
     const fullPath = path.join(process.cwd(), "public", cleanPath);
     const buffer = await fs.readFile(fullPath);
     const ext = path.extname(cleanPath).toLowerCase();
     const mime = ext === ".png" ? "image/png" : "image/jpeg";
     imageSrc = `data:${mime};base64,${buffer.toString("base64")}`;
   } catch {
-    imageSrc = null;
+    try {
+      const siteUrl = getSiteUrl();
+      const res = await fetch(`${siteUrl}/${cleanPath}`);
+      if (res.ok) {
+        const arr = await res.arrayBuffer();
+        const buffer = Buffer.from(arr);
+        const ext = path.extname(cleanPath).toLowerCase();
+        const mime = ext === ".png" ? "image/png" : "image/jpeg";
+        imageSrc = `data:${mime};base64,${buffer.toString("base64")}`;
+      }
+    } catch {
+      imageSrc = null;
+    }
   }
 
-  const formattedPrice = `$${Number(item.price).toFixed(2)}`;
+  const formattedPrice = formatETB(item.price);
   const categoryText = (item.categories || []).join(" | ").toUpperCase();
 
   return new ImageResponse(

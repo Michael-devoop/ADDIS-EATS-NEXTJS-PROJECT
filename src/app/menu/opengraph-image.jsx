@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import fs from "fs/promises";
 import path from "path";
+import { getSiteUrl } from "@/lib/siteUrl";
 
 export const runtime = "nodejs";
 
@@ -13,12 +14,23 @@ export const contentType = "image/png";
 
 export default async function Image() {
   let imageSrc = null;
+  const siteUrl = getSiteUrl();
+
   try {
     const fullPath = path.join(process.cwd(), "public", "images", "addis-eats-og.jpg");
     const buffer = await fs.readFile(fullPath);
     imageSrc = `data:image/jpeg;base64,${buffer.toString("base64")}`;
   } catch {
-    imageSrc = null;
+    try {
+      const res = await fetch(`${siteUrl}/images/addis-eats-og.jpg`);
+      if (res.ok) {
+        const arr = await res.arrayBuffer();
+        const buffer = Buffer.from(arr);
+        imageSrc = `data:image/jpeg;base64,${buffer.toString("base64")}`;
+      }
+    } catch {
+      imageSrc = null;
+    }
   }
 
   return new ImageResponse(

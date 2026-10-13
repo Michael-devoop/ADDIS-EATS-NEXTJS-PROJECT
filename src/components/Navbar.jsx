@@ -487,9 +487,9 @@ export default function Navbar() {
           ========================================================================= */}
       <nav
         aria-label="Mobile Bottom Navigation"
-        className="fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-200/90 shadow-[0_-4px_16px_rgba(8,7,15,0.08)] lg:hidden"
+        className="fixed bottom-0 inset-x-0 z-50 bg-primary border-t border-primary shadow-[0_-6px_20px_rgba(8,7,15,0.15)] lg:hidden"
       >
-        <div className="container mx-auto px-6 py-2.5 menu-icon">
+        <div className="container mx-auto px-6 py-3.5 menu-icon">
           <ul className="flex items-center justify-between w-full max-w-md mx-auto">
             {/* Left: Cart Icon with Round Count Badge ("0") */}
             <li className="cart relative">
@@ -500,16 +500,16 @@ export default function Navbar() {
                   setCartOpen((open) => !open);
                   setUserMenuOpen(false);
                 }}
-                className="cart-link flex items-center cursor-pointer transition py-1 hover:opacity-80 active:scale-95"
+                className="cart-link flex items-center cursor-pointer transition py-1 hover:opacity-90 active:scale-95"
               >
                 <Image
                   src="/images/cart.png"
                   alt="Cart Icon"
-                  width={33}
-                  height={30}
-                  sizes="33px"
+                  width={40}
+                  height={38}
+                  sizes="40px"
                   style={{ width: "auto", height: "auto" }}
-                  className="menu-icon-img object-contain"
+                  className="menu-icon-img object-contain brightness-0 invert"
                 />
                 <span
                   suppressHydrationWarning
@@ -532,10 +532,10 @@ export default function Navbar() {
                     setUserMenuOpen((open) => !open);
                     setCartOpen(false);
                   }}
-                  className="relative flex items-center justify-center cursor-pointer transition py-1 hover:opacity-80 active:scale-95"
+                  className="relative flex items-center justify-center cursor-pointer transition py-1 hover:opacity-90 active:scale-95"
                   title={`Signed in as ${session.user.name}`}
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary font-heading text-sm font-bold text-white shadow-sm ring-2 ring-primary/20 select-none">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white font-heading text-base font-bold text-primary shadow-sm ring-2 ring-white/30 select-none">
                     {userInitial}
                   </span>
                 </button>
@@ -543,17 +543,17 @@ export default function Navbar() {
                 <Link
                   href="/login"
                   onClick={closeAll}
-                  className="block transition py-1 cursor-pointer hover:opacity-80 active:scale-95"
+                  className="block transition py-1 cursor-pointer hover:opacity-90 active:scale-95"
                   title="Sign In"
                 >
                   <Image
                     src="/images/user.png"
                     alt="User Icon"
-                    width={30}
-                    height={30}
-                    sizes="30px"
+                    width={38}
+                    height={38}
+                    sizes="38px"
                     style={{ width: "auto", height: "auto" }}
-                    className="menu-icon-img object-contain"
+                    className="menu-icon-img object-contain brightness-0 invert"
                   />
                 </Link>
               )}
@@ -569,16 +569,16 @@ export default function Navbar() {
                   setCartOpen(false);
                   setUserMenuOpen(false);
                 }}
-                className="block cursor-pointer transition py-1 hover:opacity-80 active:scale-95"
+                className="block cursor-pointer transition py-1 hover:opacity-90 active:scale-95"
               >
                 <Image
                   src="/images/search.png"
                   alt="Search Icon"
-                  width={31}
-                  height={30}
-                  sizes="31px"
+                  width={38}
+                  height={38}
+                  sizes="38px"
                   style={{ width: "auto", height: "auto" }}
-                  className="menu-icon-img object-contain"
+                  className="menu-icon-img object-contain brightness-0 invert"
                 />
               </button>
             </li>
