@@ -487,7 +487,7 @@ export default function Navbar() {
           ========================================================================= */}
       <nav
         aria-label="Mobile Bottom Navigation"
-        className="fixed bottom-0 inset-x-0 z-50 bg-primary border-t border-primary shadow-[0_-6px_20px_rgba(8,7,15,0.15)] lg:hidden"
+        className="fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-200 shadow-[0_-4px_16px_rgba(8,7,15,0.08)] lg:hidden"
       >
         <div className="container mx-auto px-6 py-3.5 menu-icon">
           <ul className="flex items-center justify-between w-full max-w-md mx-auto">
@@ -509,7 +509,7 @@ export default function Navbar() {
                   height={32}
                   sizes="32px"
                   style={{ width: "32px", height: "32px", minWidth: "32px", minHeight: "32px" }}
-                  className="menu-icon-img object-contain brightness-0 invert"
+                  className="menu-icon-img object-contain"
                 />
                 <span
                   suppressHydrationWarning
@@ -535,7 +535,7 @@ export default function Navbar() {
                   className="relative flex items-center justify-center cursor-pointer transition py-1 hover:opacity-90 active:scale-95"
                   title={`Signed in as ${session.user.name}`}
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white font-heading text-base font-bold text-primary shadow-sm ring-2 ring-white/30 select-none">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-heading text-base font-bold text-white shadow-sm ring-2 ring-primary/20 select-none">
                     {userInitial}
                   </span>
                 </button>
@@ -553,7 +553,7 @@ export default function Navbar() {
                     height={32}
                     sizes="32px"
                     style={{ width: "32px", height: "32px", minWidth: "32px", minHeight: "32px" }}
-                    className="menu-icon-img object-contain brightness-0 invert"
+                    className="menu-icon-img object-contain"
                   />
                 </Link>
               )}
@@ -578,7 +578,7 @@ export default function Navbar() {
                   height={32}
                   sizes="32px"
                   style={{ width: "32px", height: "32px", minWidth: "32px", minHeight: "32px" }}
-                  className="menu-icon-img object-contain brightness-0 invert"
+                  className="menu-icon-img object-contain"
                 />
               </button>
             </li>
