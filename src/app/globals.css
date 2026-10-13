@@ -196,3 +196,9 @@ a:hover .menu-icon-img {
   filter: grayscale(100%) brightness(0);
   opacity: 1;
 }
+
+/* Mobile bottom nav: override with white icons (brightness-0 + invert via Tailwind) */
+nav[aria-label="Mobile Bottom Navigation"] .menu-icon-img {
+  filter: brightness(0) invert(1) !important;
+  opacity: 1;
+}

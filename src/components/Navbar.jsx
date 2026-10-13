@@ -505,10 +505,10 @@ export default function Navbar() {
                 <Image
                   src="/images/cart.png"
                   alt="Cart Icon"
-                  width={40}
-                  height={38}
-                  sizes="40px"
-                  style={{ width: "auto", height: "auto" }}
+                  width={32}
+                  height={32}
+                  sizes="32px"
+                  style={{ width: "32px", height: "32px", minWidth: "32px", minHeight: "32px" }}
                   className="menu-icon-img object-contain brightness-0 invert"
                 />
                 <span
@@ -549,10 +549,10 @@ export default function Navbar() {
                   <Image
                     src="/images/user.png"
                     alt="User Icon"
-                    width={38}
-                    height={38}
-                    sizes="38px"
-                    style={{ width: "auto", height: "auto" }}
+                    width={32}
+                    height={32}
+                    sizes="32px"
+                    style={{ width: "32px", height: "32px", minWidth: "32px", minHeight: "32px" }}
                     className="menu-icon-img object-contain brightness-0 invert"
                   />
                 </Link>
@@ -574,10 +574,10 @@ export default function Navbar() {
                 <Image
                   src="/images/search.png"
                   alt="Search Icon"
-                  width={38}
-                  height={38}
-                  sizes="38px"
-                  style={{ width: "auto", height: "auto" }}
+                  width={32}
+                  height={32}
+                  sizes="32px"
+                  style={{ width: "32px", height: "32px", minWidth: "32px", minHeight: "32px" }}
                   className="menu-icon-img object-contain brightness-0 invert"
                 />
               </button>
