@@ -1,0 +1,35 @@
+{
+  "name": "addis-eats",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "recharts": "^3.10.1",
+    "swr": "^2.5.1",
+    "zod": "^4.6.6"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^16.4.0",
+    "@tailwindcss/turbopack": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.0",
+    "tailwindcss": "^4",
+    "unimported": "^1.31.0"
+  },
+  "browserslist": [
+    "defaults and fully supports es6-module",
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "not dead"
+  ]
+}
