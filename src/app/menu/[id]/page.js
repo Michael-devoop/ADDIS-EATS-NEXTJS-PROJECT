@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getDishes, getDish, getRelatedDishes } from "@/data/menuData";
 import { getLivePricing } from "@/lib/pricing";
 import AddToCartButton from "@/components/AddToCartButton";
+import { getSiteUrl } from "@/lib/siteUrl";
 
 // Revalidate dish detail pages every hour (3600 seconds)
 export const revalidate = 3600;
@@ -61,7 +62,7 @@ export default async function MenuItemPage({ params }) {
     notFound();
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://addiseats.com";
+  const siteUrl = getSiteUrl();
   const etbPrice = (item.price * livePricing.etbExchangeRate).toFixed(2);
   const dishImageUrl = item.image.startsWith("http")
     ? item.image

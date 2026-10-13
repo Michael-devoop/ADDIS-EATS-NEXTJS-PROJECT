@@ -3,8 +3,8 @@
 ## What It Is
 **Addis Eats** is a production-grade Ethiopian culinary restaurant web application built with **Next.js 16 (App Router)**, **React 19**, and **Tailwind CSS**. It provides an authentic dining and delivery experience with Ethiopian Birr (`ETB`) pricing, ISR-cached menu catalogs (`revalidate = 3600`), debounced SWR client search, an accessible keyboard-navigable checkout with double-tap idempotency protection, real-time Server-Sent Events (SSE) order status tracking, and a secure executive operations dashboard guarded by defense-in-depth authentication.
 
-* **Live Production URL:** [https://addiseats.com](https://addiseats.com)
-* **Live Staging / Preview URL:** [https://preview.addiseats.com](https://preview.addiseats.com)
+* **Live Production URL:** [https://addis-eats-nextjs-project.vercel.app](https://addis-eats-nextjs-project.vercel.app)
+* **GitHub Repository:** [https://github.com/Michael-devoop/ADDIS-EATS-NEXTJS-PROJECT](https://github.com/Michael-devoop/ADDIS-EATS-NEXTJS-PROJECT)
 
 ---
 
@@ -14,8 +14,8 @@ Follow these steps to run the application locally from a clean clone:
 
 ```bash
 # 1. Clone the repository and enter the project folder
-git clone https://github.com/IBT-Qiyas-Full-Stack-Academy/sq2-michael-abebe.git
-cd sq2-michael-abebe/module-03-react-nextjs/projects/addis-eats-nextjs
+git clone https://github.com/Michael-devoop/ADDIS-EATS-NEXTJS-PROJECT.git
+cd ADDIS-EATS-NEXTJS-PROJECT
 
 # 2. Configure environment variables from template
 cp .env.example .env.local
@@ -39,13 +39,13 @@ Configure these variables in your deployment settings (e.g. Vercel Project Setti
 
 | Variable | Scope | Required | Purpose |
 | :--- | :--- | :--- | :--- |
+| `SITE_URL` | Server Only | No (defaults to Vercel URL) | Canonical site URL used for sitemap, robots, OpenGraph cards, and Schema.org JSON-LD. Never leaked to client JS bundles. |
 | `SESSION_SECRET` | Server Only | **Yes** | 32+ char HMAC-SHA256 cryptographic secret for HttpOnly cookie signing. |
 | `ADMIN_API_KEY` | Server Only | **Yes** | Server secret token for privileged backend administrative mutations. |
-| `NEXT_PUBLIC_SITE_URL` | Public / Client | **Yes** | Canonical site URL used for Schema.org JSON-LD and OpenGraph cards. |
 | `NEXT_PUBLIC_APP_NAME` | Public / Client | No | Application branding title (defaults to `Addis Eats`). |
 | `NEXT_PUBLIC_DEFAULT_CURRENCY` | Public / Client | No | Primary display currency (`ETB` or `USD`). |
 
-> **Security Rule:** Server-only secrets (`SESSION_SECRET`, `ADMIN_API_KEY`) must **never** be prefixed with `NEXT_PUBLIC_`.
+> **Security Rule:** Server-only configurations and secrets (`SITE_URL`, `SESSION_SECRET`, `ADMIN_API_KEY`) must **never** be prefixed with `NEXT_PUBLIC_` to prevent bundling into client JavaScript.
 
 ---
 

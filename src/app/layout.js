@@ -6,6 +6,7 @@ import SiteShell from "@/components/SiteShell";
 import { CartProvider } from "@/context/CartContext";
 import SWRProvider from "@/components/SWRProvider";
 import OrderStorageSync from "@/components/OrderStorageSync";
+import { getSiteUrl } from "@/lib/siteUrl";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -28,9 +29,7 @@ const airbusSpecial = localFont({
 });
 
 export const metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://addiseats.com"
-  ),
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: "Addis Eats — Authentic Restaurant & Cafe",
     template: "%s | Addis Eats",
@@ -88,7 +87,7 @@ export default function RootLayout({ children }) {
               "@context": "https://schema.org",
               "@type": "Restaurant",
               "name": "Addis Eats",
-              "image": "https://addiseats.com/images/ktfo.png",
+              "image": `${getSiteUrl()}/images/ktfo.png`,
               "servesCuisine": ["Ethiopian", "African", "Traditional"],
               "priceRange": "$$",
               "telephone": "+251911002233",

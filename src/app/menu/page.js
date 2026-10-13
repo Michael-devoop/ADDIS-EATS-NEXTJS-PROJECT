@@ -5,6 +5,7 @@ import DishSkeleton from "@/components/DishSkeleton";
 import FestiveSpecial from "@/components/FestiveSpecial";
 import ServicesSection from "@/components/ServicesSection";
 import { getDishes, getCategories } from "@/data/menuData";
+import { getSiteUrl } from "@/lib/siteUrl";
 
 // Refresh menu every hour (3600 seconds) using ISR (Incremental Static Regeneration)
 export const revalidate = 3600;
@@ -23,7 +24,7 @@ export default async function MenuPage() {
     formattedPrice: `${Math.round(dish.price * 125.5).toLocaleString()} ETB`,
   }));
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://addiseats.com";
+  const siteUrl = getSiteUrl();
   const menuJsonLd = {
     "@context": "https://schema.org",
     "@type": "Menu",

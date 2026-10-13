@@ -1,5 +1,7 @@
+import { getSiteUrl } from "@/lib/siteUrl";
+
 export default function robots() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://addiseats.com";
+  const baseUrl = getSiteUrl();
 
   return {
     rules: [

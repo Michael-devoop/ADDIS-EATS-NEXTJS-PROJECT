@@ -1,7 +1,8 @@
 import { getDishes } from "@/data/menuData";
+import { getSiteUrl } from "@/lib/siteUrl";
 
 export default async function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://addiseats.com";
+  const baseUrl = getSiteUrl();
   const dishes = await getDishes();
 
   // Dynamic dish records from the catalog
