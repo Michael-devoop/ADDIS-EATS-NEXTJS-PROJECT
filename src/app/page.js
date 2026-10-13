@@ -15,12 +15,22 @@ export const metadata = {
     description:
       "Experience the rich culinary heritage of Ethiopia at Addis Eats. Savor traditionally spiced dishes, freshly roasted coffee, and fast doorstep delivery.",
     url: "/",
+    images: [
+      {
+        url: "/images/addis-eats-og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Addis Eats - Authentic Ethiopian Dining Experience",
+        type: "image/jpeg",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Addis Eats — Authentic Ethiopian Restaurant & Cafe",
     description:
       "Experience the rich culinary heritage of Ethiopia at Addis Eats. Savor traditionally spiced dishes, freshly roasted coffee, and fast doorstep delivery.",
+    images: ["/images/addis-eats-og.jpg"],
   },
   alternates: {
     canonical: "/",

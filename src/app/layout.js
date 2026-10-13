@@ -43,6 +43,15 @@ export const metadata = {
     description: "We do not cook, we create your emotions! Fresh dishes delivered to your doorstep.",
     url: "/",
     siteName: "Addis Eats",
+    images: [
+      {
+        url: "/images/addis-eats-og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Addis Eats Authentic Ethiopian Restaurant & Cafe",
+        type: "image/jpeg",
+      },
+    ],
     locale: "en_US",
     type: "website",
   },
@@ -50,6 +59,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Addis Eats — Authentic Restaurant & Cafe",
     description: "We do not cook, we create your emotions! Fresh dishes delivered to your doorstep.",
+    images: ["/images/addis-eats-og.jpg"],
   },
 };
 
