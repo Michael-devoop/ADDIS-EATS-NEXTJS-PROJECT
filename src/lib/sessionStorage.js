@@ -1,62 +1,109 @@
 /**
- * Server-Side Session Storage (File-based)
+ * Server-Side Session Storage (Serverless & Read-Only Safe)
  * 
- * This module provides persistent session storage using a JSON file.
- * For production, replace with database storage (PostgreSQL, Redis, etc.)
- * 
- * Features:
- * - File-based persistence (survives server restarts)
- * - Automatic cleanup of expired sessions
- * - Thread-safe read/write operations
+ * Provides hybrid session storage using in-memory Map and optional disk persistence.
+ * Resilient against read-only serverless filesystems (e.g. Vercel / AWS Lambda).
  */
 
 import fs from "fs";
 import path from "path";
+import os from "os";
 
-const SESSIONS_FILE = path.join(process.cwd(), "data", "sessions.json");
+const SESSIONS_FILE = process.env.VERCEL
+  ? path.join(os.tmpdir(), "addis_eats_sessions.json")
+  : path.join(process.cwd(), "data", "sessions.json");
+
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-// Ensure data directory exists
+// Default initial demo sessions in-memory
+const memorySessions = new Map([
+  [
+    "demo-session-1",
+    {
+      userId: "usr_demo_1",
+      email: "demo@addiseats.com",
+      name: "Abebe Bikila",
+      role: "customer",
+      createdAt: Date.now() - 3600000,
+      expiresAt: Date.now() + SESSION_DURATION_MS,
+    },
+  ],
+  [
+    "demo-session-2",
+    {
+      userId: "usr_demo_2",
+      email: "selam@addiseats.com",
+      name: "Selamawit Kebede",
+      role: "customer",
+      createdAt: Date.now() - 7200000,
+      expiresAt: Date.now() + SESSION_DURATION_MS,
+    },
+  ],
+  [
+    "demo-session-admin",
+    {
+      userId: "usr_admin_1",
+      email: "admin@addiseats.com",
+      name: "Admin User",
+      role: "admin",
+      createdAt: Date.now() - 10000,
+      expiresAt: Date.now() + SESSION_DURATION_MS,
+    },
+  ],
+]);
+
+let isInitialized = false;
+
+// Ensure data directory exists without throwing
 function ensureDataDirectory() {
-  const dataDir = path.dirname(SESSIONS_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+  try {
+    const dataDir = path.dirname(SESSIONS_FILE);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    return true;
+  } catch (err) {
+    return false;
   }
 }
 
 /**
- * Read all sessions from file
+ * Read all sessions from file or in-memory map
  * @returns {Map<string, Object>}
  */
 function readSessions() {
-  ensureDataDirectory();
-
-  if (!fs.existsSync(SESSIONS_FILE)) {
-    return new Map();
+  if (isInitialized) {
+    return memorySessions;
   }
 
   try {
-    const data = fs.readFileSync(SESSIONS_FILE, "utf-8");
-    const parsed = JSON.parse(data);
-    return new Map(Object.entries(parsed));
+    if (fs.existsSync(SESSIONS_FILE)) {
+      const data = fs.readFileSync(SESSIONS_FILE, "utf-8");
+      const parsed = JSON.parse(data);
+      for (const [key, value] of Object.entries(parsed)) {
+        memorySessions.set(key, value);
+      }
+    }
   } catch (error) {
-    console.error("Error reading sessions file:", error);
-    return new Map();
+    console.warn("[sessionStorage] Could not read sessions from file:", error.message);
   }
+
+  isInitialized = true;
+  return memorySessions;
 }
 
 /**
- * Write all sessions to file
+ * Write all sessions to file and memory
  * @param {Map<string, Object>} sessions
  */
 function writeSessions(sessions) {
-  ensureDataDirectory();
-
   try {
-    const obj = Object.fromEntries(sessions);
-    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(obj, null, 2), "utf-8");
+    if (ensureDataDirectory()) {
+      const obj = Object.fromEntries(sessions);
+      fs.writeFileSync(SESSIONS_FILE, JSON.stringify(obj, null, 2), "utf-8");
+    }
   } catch (error) {
-    console.error("Error writing sessions file:", error);
+    console.warn("[sessionStorage] File write skipped (read-only environment):", error.message);
   }
 }
 
@@ -139,53 +186,18 @@ export function getAllSessions() {
  * Initialize with demo sessions if file doesn't exist
  */
 export function initializeDemoSessions() {
-  if (fs.existsSync(SESSIONS_FILE)) {
-    return; // Already initialized
-  }
-
-  const demoSessions = new Map([
-    [
-      "demo-session-1",
-      {
-        userId: "usr_demo_1",
-        email: "demo@addiseats.com",
-        name: "Abebe Bikila",
-        role: "customer",
-        createdAt: Date.now() - 3600000,
-        expiresAt: Date.now() + SESSION_DURATION_MS,
-      },
-    ],
-    [
-      "demo-session-2",
-      {
-        userId: "usr_demo_2",
-        email: "selam@addiseats.com",
-        name: "Selamawit Kebede",
-        role: "customer",
-        createdAt: Date.now() - 7200000,
-        expiresAt: Date.now() + SESSION_DURATION_MS,
-      },
-    ],
-    [
-      "demo-session-admin",
-      {
-        userId: "usr_admin_1",
-        email: "admin@addiseats.com",
-        name: "Admin User",
-        role: "admin",
-        createdAt: Date.now() - 10000,
-        expiresAt: Date.now() + SESSION_DURATION_MS,
-      },
-    ],
-  ]);
-
-  writeSessions(demoSessions);
+  readSessions();
+  writeSessions(memorySessions);
 }
 
-// Initialize demo sessions on module load
-initializeDemoSessions();
+// Safely attempt initialization on module load without throwing
+try {
+  initializeDemoSessions();
+} catch (e) {
+  // Silent fallback to in-memory
+}
 
-// Schedule periodic cleanup (every hour)
+// Periodic cleanup in persistent runtimes
 if (typeof setInterval !== "undefined") {
   setInterval(cleanupExpiredSessions, 60 * 60 * 1000);
 }

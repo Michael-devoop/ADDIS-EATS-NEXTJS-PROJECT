@@ -1,57 +1,84 @@
 /**
- * Dish Storage Module (File-based)
+ * Dish Storage Module (Serverless & Read-Only Safe)
  * 
- * Provides persistent storage for dishes using a JSON file.
- * Replaces module-level mutable state to prevent data corruption.
+ * Provides hybrid persistent storage for dishes:
+ * - Uses in-memory state as resilient primary/fallback store
+ * - Persists to disk when filesystem is writable
+ * - Automatically falls back to os.tmpdir() on Vercel serverless environments
+ * - Never throws uncaught EROFS / filesystem errors
  */
 
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { menuItems } from "@/data/menuData";
 
-const DISHES_FILE = path.join(process.cwd(), "data", "dishes.json");
+// Use /tmp on Vercel serverless environments to avoid EROFS read-only errors
+const DISHES_FILE = process.env.VERCEL
+  ? path.join(os.tmpdir(), "addis_eats_dishes.json")
+  : path.join(process.cwd(), "data", "dishes.json");
 
-// Ensure data directory exists
+// In-memory cache ensures zero downtime even on read-only serverless filesystems
+let memoryDishes = [...menuItems];
+let isInitialized = false;
+
+// Safely ensure data directory exists without throwing
 function ensureDataDirectory() {
-  const dataDir = path.dirname(DISHES_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+  try {
+    const dataDir = path.dirname(DISHES_FILE);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    return true;
+  } catch (err) {
+    // Read-only filesystem or permissions error; fallback to in-memory
+    return false;
   }
 }
 
 /**
- * Read all dishes from file
+ * Read all dishes from file or in-memory fallback
  * @returns {Array}
  */
 function readDishes() {
-  ensureDataDirectory();
-
-  if (!fs.existsSync(DISHES_FILE)) {
-    // Initialize with default menu items
-    writeDishes(menuItems);
-    return [...menuItems];
+  if (isInitialized && memoryDishes.length > 0) {
+    return memoryDishes;
   }
 
   try {
-    const data = fs.readFileSync(DISHES_FILE, "utf-8");
-    return JSON.parse(data);
+    if (fs.existsSync(DISHES_FILE)) {
+      const data = fs.readFileSync(DISHES_FILE, "utf-8");
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        memoryDishes = parsed;
+        isInitialized = true;
+        return memoryDishes;
+      }
+    }
   } catch (error) {
-    console.error("Error reading dishes file:", error);
-    return [...menuItems];
+    console.warn("[dishStorage] Could not read dishes from disk, using default menu:", error.message);
   }
+
+  // Seed default items in memory and try persisting if writable
+  memoryDishes = [...menuItems];
+  isInitialized = true;
+  writeDishes(memoryDishes);
+  return memoryDishes;
 }
 
 /**
- * Write all dishes to file
+ * Write all dishes to file and memory
  * @param {Array} dishes
  */
 function writeDishes(dishes) {
-  ensureDataDirectory();
+  memoryDishes = [...dishes];
 
   try {
-    fs.writeFileSync(DISHES_FILE, JSON.stringify(dishes, null, 2), "utf-8");
+    if (ensureDataDirectory()) {
+      fs.writeFileSync(DISHES_FILE, JSON.stringify(dishes, null, 2), "utf-8");
+    }
   } catch (error) {
-    console.error("Error writing dishes file:", error);
+    console.warn("[dishStorage] Filesystem write skipped (read-only environment):", error.message);
   }
 }
 
@@ -165,7 +192,7 @@ export function searchDishes(query) {
   return dishes.filter(
     (dish) =>
       dish.name.toLowerCase().includes(lowerQuery) ||
-      dish.desc.toLowerCase().includes(lowerQuery)
+      dish.desc?.toLowerCase().includes(lowerQuery)
   );
 }
 

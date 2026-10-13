@@ -4,8 +4,13 @@
 
 import fs from "fs";
 import path from "path";
+import os from "os";
 
-const ORDERS_FILE = path.join(process.cwd(), "data", "orders.json");
+const ORDERS_FILE = process.env.VERCEL
+  ? path.join(os.tmpdir(), "addis_eats_orders.json")
+  : path.join(process.cwd(), "data", "orders.json");
+
+let inMemoryOrders = null;
 
 const INITIAL_ORDERS = [
   {
@@ -148,35 +153,49 @@ const INITIAL_ORDERS = [
 // File-based persistence helpers
 // ---------------------------------------------------------------------------
 
-/** Ensure the data/ directory exists */
+/** Ensure the data/ directory exists safely without throwing */
 function ensureDataDir() {
-  const dir = path.dirname(ORDERS_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  try {
+    const dir = path.dirname(ORDERS_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    return true;
+  } catch (err) {
+    return false;
   }
 }
 
-/** Read orders from the JSON file on disk */
+/** Read orders from the JSON file on disk or memory cache */
 function readOrdersFromFile() {
+  if (inMemoryOrders && Array.isArray(inMemoryOrders) && inMemoryOrders.length > 0) {
+    return inMemoryOrders;
+  }
+
   try {
     if (fs.existsSync(ORDERS_FILE)) {
       const raw = fs.readFileSync(ORDERS_FILE, "utf-8");
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        inMemoryOrders = parsed;
+        return inMemoryOrders;
       }
     }
   } catch (err) {
     console.warn("[ordersStore] Could not read orders file, using defaults:", err.message);
   }
-  return null;
+
+  inMemoryOrders = [...INITIAL_ORDERS];
+  return inMemoryOrders;
 }
 
-/** Write orders array to the JSON file on disk */
+/** Write orders array to the JSON file on disk and memory */
 function writeOrdersToFile(ordersArray) {
+  inMemoryOrders = [...ordersArray];
   try {
-    ensureDataDir();
-    fs.writeFileSync(ORDERS_FILE, JSON.stringify(ordersArray, null, 2), "utf-8");
+    if (ensureDataDir()) {
+      fs.writeFileSync(ORDERS_FILE, JSON.stringify(ordersArray, null, 2), "utf-8");
+    }
   } catch (err) {
     console.warn("[ordersStore] Could not write orders file:", err.message);
   }
@@ -185,9 +204,13 @@ function writeOrdersToFile(ordersArray) {
 // ---------------------------------------------------------------------------
 // Initialize: load from file, or seed with demo orders and persist them
 // ---------------------------------------------------------------------------
-const storedOrders = readOrdersFromFile();
-if (!storedOrders) {
-  writeOrdersToFile(INITIAL_ORDERS);
+try {
+  const storedOrders = readOrdersFromFile();
+  if (!storedOrders) {
+    writeOrdersToFile(INITIAL_ORDERS);
+  }
+} catch (e) {
+  inMemoryOrders = [...INITIAL_ORDERS];
 }
 
 /**
@@ -198,7 +221,7 @@ function getActiveOrders() {
   if (fromDisk && Array.isArray(fromDisk) && fromDisk.length > 0) {
     return fromDisk;
   }
-  return [...INITIAL_ORDERS];
+  return inMemoryOrders || [...INITIAL_ORDERS];
 }
 
 // ---------------------------------------------------------------------------

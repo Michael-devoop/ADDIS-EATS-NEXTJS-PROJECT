@@ -7,8 +7,13 @@
 
 import fs from "fs";
 import path from "path";
+import os from "os";
 
-const USERS_FILE = path.join(process.cwd(), "data", "users.json");
+const USERS_FILE = process.env.VERCEL
+  ? path.join(os.tmpdir(), "addis_eats_users.json")
+  : path.join(process.cwd(), "data", "users.json");
+
+let memoryUsers = null;
 
 const INITIAL_USERS = [
   {
@@ -105,36 +110,48 @@ const INITIAL_USERS = [
 ];
 
 function ensureDataDir() {
-  const dir = path.dirname(USERS_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  try {
+    const dir = path.dirname(USERS_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    return true;
+  } catch (err) {
+    return false;
   }
 }
 
 export function readUsersFromFile() {
+  if (memoryUsers && Array.isArray(memoryUsers) && memoryUsers.length > 0) {
+    return memoryUsers;
+  }
+
   try {
-    ensureDataDir();
     if (fs.existsSync(USERS_FILE)) {
       const raw = fs.readFileSync(USERS_FILE, "utf-8");
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        memoryUsers = parsed;
+        return memoryUsers;
       }
     }
   } catch (err) {
     console.warn("[usersStore] Could not read users file, using initial:", err.message);
   }
-  // Initialize file with default users
-  writeUsersToFile(INITIAL_USERS);
-  return [...INITIAL_USERS];
+
+  memoryUsers = [...INITIAL_USERS];
+  writeUsersToFile(memoryUsers);
+  return memoryUsers;
 }
 
 export function writeUsersToFile(usersArray) {
+  memoryUsers = [...usersArray];
   try {
-    ensureDataDir();
-    fs.writeFileSync(USERS_FILE, JSON.stringify(usersArray, null, 2), "utf-8");
+    if (ensureDataDir()) {
+      fs.writeFileSync(USERS_FILE, JSON.stringify(usersArray, null, 2), "utf-8");
+    }
   } catch (err) {
-    console.error("[usersStore] Failed writing users file:", err.message);
+    console.warn("[usersStore] Filesystem write skipped (read-only environment):", err.message);
   }
 }
 
